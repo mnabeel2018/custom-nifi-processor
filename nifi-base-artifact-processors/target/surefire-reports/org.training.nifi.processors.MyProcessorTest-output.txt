@@ -1,0 +1,7 @@
+[pool-1-thread-1] INFO org.training.nifi.processors.MyProcessor - Triggering custom processor
+[pool-1-thread-1] ERROR org.training.nifi.processors.MyProcessor - No flowfile provided
+[pool-2-thread-1] INFO org.training.nifi.processors.MyProcessor - Triggering custom processor
+[pool-2-thread-1] INFO org.training.nifi.processors.MyProcessor - shifting the chars of: Hello World by 2 places
+[pool-2-thread-1] INFO org.training.nifi.processors.MyProcessor - Shifted string Jgnnq"Yqtnf
+[pool-3-thread-1] INFO org.training.nifi.processors.MyProcessor - Triggering custom processor
+[pool-3-thread-1] WARN org.training.nifi.processors.MyProcessor - charshift attribute is empty
