@@ -17,6 +17,7 @@
 package org.training.nifi.processors;
 
 import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.expression.ExpressionLanguageScope;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.annotation.behavior.ReadsAttribute;
 import org.apache.nifi.annotation.behavior.ReadsAttributes;
@@ -25,6 +26,7 @@ import org.apache.nifi.annotation.behavior.WritesAttributes;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
+import org.apache.nifi.flowfile.attributes.CoreAttributes;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.processor.AbstractProcessor;
 import org.apache.nifi.processor.ProcessContext;
@@ -35,6 +37,7 @@ import org.apache.nifi.processor.util.StandardValidators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -116,6 +119,7 @@ public class MyProcessor extends AbstractProcessor {
      */
     @Override
     public void onTrigger(final ProcessContext context, final ProcessSession session) throws ProcessException {
+
         LOGGER.info("Triggering custom processor");
         FlowFile flowFile = session.get();
         if ( flowFile == null ) {
@@ -131,12 +135,19 @@ public class MyProcessor extends AbstractProcessor {
             return;
         }
 
-        int shift = Integer.parseInt(context.getProperty("shift-by").getValue());
+        int shift = context.getProperty(SHIFT_LETTERS_BY_N).evaluateAttributeExpressions().asInteger();
+
+        getLogger().debug("printed from component log");
 
         LOGGER.info("shifting the chars of: {} by {} places", oldValue, shift);
         String newValue = charShift(oldValue, shift);
         LOGGER.info("Shifted string {}",newValue);
-        session.putAttribute(flowFile, "charshift", newValue);
+
+        try {
+            session.write(flowFile).write(newValue.getBytes());
+        } catch (IOException e) {
+            LOGGER.warn("Could not write to contents of flowfile because: "+e.getMessage());
+        }
 
         session.transfer(flowFile, SUCCESS_RELATIONSHIP);
     }
